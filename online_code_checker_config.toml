@@ -1,0 +1,6 @@
+[database]
+url = "database.sqlite"
+
+[executor]
+concurrent_limit = 4
+memory_limit = "100M"
