@@ -6,7 +6,7 @@ use once_cell::sync::Lazy;
 use serde::Deserialize;
 use sqlx::{sqlite::SqliteConnectOptions, Pool, Sqlite, SqlitePool};
 use tokio::sync::mpsc::channel;
-use tracing::{debug, instrument, trace, warn};
+use tracing::{debug, info, instrument, trace, warn};
 
 mod executor;
 mod server;
@@ -23,9 +23,15 @@ pub struct ExecutorConfiguration {
 }
 
 #[derive(Debug, Deserialize)]
+pub struct ServerConfiguration {
+    address: String,
+}
+
+#[derive(Debug, Deserialize)]
 pub struct Configuration {
     database: DatabaseConfiguration,
     executor: ExecutorConfiguration,
+    server: ServerConfiguration,
 }
 #[derive(Debug)]
 pub struct Task {
@@ -73,8 +79,14 @@ async fn main() -> anyhow::Result<()> {
 
     let (tx, rx) = channel(100);
 
-    let server_task = server::server_main(tx);
-    let executor_task = executor::executor_task(rx);
+    // run our app with hyper, listening globally on port 3000
+    let listener = tokio::net::TcpListener::bind(&CONFIG.server.address)
+        .await
+        .context("listen on port")?;
+    info!(address = CONFIG.server.address, "bined listener");
+
+    let server_task = server::server_main(listener, tx, pool.clone());
+    let executor_task = executor::executor_task(rx, pool);
 
     tokio::try_join!(server_task, executor_task)?;
     Ok(())

@@ -4,3 +4,6 @@ url = "database.sqlite"
 [executor]
 concurrent_limit = 4
 memory_limit = "100M"
+
+[server]
+address = "0.0.0.0:3000"

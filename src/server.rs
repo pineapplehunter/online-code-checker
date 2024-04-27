@@ -6,25 +6,33 @@ use axum::{
     Json, Router,
 };
 use serde::{Deserialize, Serialize};
-use tokio::sync::mpsc::Sender;
-use tracing::instrument;
+use sqlx::{Pool, Sqlite};
+use tokio::{net::TcpListener, sync::mpsc::Sender};
+use tower_http::trace::{self, TraceLayer};
+use tracing::{debug, Level};
+use tracing_subscriber::field::debug;
 
 use crate::Task;
 
-#[instrument(skip_all)]
-pub async fn server_main(task_sender: Sender<Task>) -> anyhow::Result<()> {
+pub async fn server_main(
+    listener: TcpListener,
+    task_sender: Sender<Task>,
+    db: Pool<Sqlite>,
+) -> anyhow::Result<()> {
+    debug!("setup server");
     // build our application with a route
     let app = Router::new()
         // `GET /` goes to `root`
         .route("/", get(root))
         // `POST /users` goes to `create_user`
         .route("/users", post(create_user))
-        .with_state(task_sender);
+        .with_state(task_sender)
+        .layer(
+            TraceLayer::new_for_http()
+                .make_span_with(trace::DefaultMakeSpan::new().level(Level::INFO))
+                .on_response(trace::DefaultOnResponse::new().level(Level::INFO)),
+        );
 
-    // run our app with hyper, listening globally on port 3000
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000")
-        .await
-        .context("listen on port")?;
     axum::serve(listener, app).await.context("start server")?;
 
     Ok(())
