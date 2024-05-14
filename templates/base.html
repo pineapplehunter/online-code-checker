@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>{% block title %}{{ title }}{% endblock %} - コードチェック</title>
+    {% block head %}{% endblock %}
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
+    />
+  </head>
+  <body>
+    <header>
+      <div class="container">
+        <a href="/">コードチェッカー</a>
+      </div>
+    </header>
+    <div id="content">
+      {% block content %}
+      <p>なにかが誤動作しているようですね…</p>
+      <p>スタッフに声をかけてください。</p>
+      {% endblock %}
+    </div>
+  </body>
+</html>

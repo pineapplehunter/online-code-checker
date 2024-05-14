@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{process::Stdio, sync::Arc};
 
 use sqlx::{Pool, Sqlite};
 use tokio::{
@@ -49,7 +49,14 @@ pub async fn executor_task(mut queue: Receiver<Task>, db: Pool<Sqlite>) -> anyho
 }
 
 async fn check_docker() {
-    match Command::new("docker").arg("--version").status().await {
+    match Command::new("docker")
+        .arg("--version")
+        .stdout(Stdio::null())
+        .stdin(Stdio::null())
+        .stderr(Stdio::null())
+        .status()
+        .await
+    {
         Ok(_) => debug!("Found docker"),
         Err(e) => {
             error!( error = ?e,"could not find docker");

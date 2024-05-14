@@ -9,7 +9,8 @@ use tokio::sync::mpsc::channel;
 use tracing::{debug, info, instrument, trace, warn};
 
 mod executor;
-mod server;
+mod users;
+mod web;
 
 #[derive(Debug, Deserialize)]
 pub struct DatabaseConfiguration {
@@ -25,6 +26,7 @@ pub struct ExecutorConfiguration {
 #[derive(Debug, Deserialize)]
 pub struct ServerConfiguration {
     address: String,
+    secret_key: String,
 }
 
 #[derive(Debug, Deserialize)]
@@ -79,15 +81,9 @@ async fn main() -> anyhow::Result<()> {
 
     let (tx, rx) = channel(100);
 
-    // run our app with hyper, listening globally on port 3000
-    let listener = tokio::net::TcpListener::bind(&CONFIG.server.address)
-        .await
-        .context("listen on port")?;
-    info!(address = CONFIG.server.address, "bined listener");
-
-    let server_task = server::server_main(listener, tx, pool.clone());
+    let server_task = web::App::new(pool.clone(), tx).await?;
     let executor_task = executor::executor_task(rx, pool);
 
-    tokio::try_join!(server_task, executor_task)?;
+    tokio::try_join!(server_task.serve(), executor_task)?;
     Ok(())
 }

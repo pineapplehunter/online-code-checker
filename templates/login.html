@@ -1,0 +1,38 @@
+{% extends "base.html" %} {% block title %}ログイン{% endblock %} {% block
+content %}
+<div class="container">
+  <ul>
+    {% for message in messages %}
+    <li>
+      <span><strong>{{ message }}</strong></span>
+    </li>
+    {% endfor %}
+  </ul>
+
+  <form method="post">
+    <fieldset>
+      <legend>ログイン</legend>
+      <p>
+        <label for="username">Username</label>
+        <input name="username" id="username" placeholder="username" />
+      </p>
+      <p>
+        <label for="password">Password</label>
+        <input
+          name="password"
+          id="password"
+          type="password"
+          placeholder="password"
+        />
+      </p>
+    </fieldset>
+
+    <input type="submit" value="login" />
+
+    {% if let Some(next) = next %}
+    <input type="hidden" name="next" value="{{next}}" />
+    {% endif %}
+  </form>
+  <a href="register">登録</a>
+</div>
+{% endblock %}

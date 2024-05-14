@@ -7,3 +7,4 @@ memory_limit = "100M"
 
 [server]
 address = "0.0.0.0:3000"
+secret_key = "TeEuLqhkdBS-_ULp3-24IVbSXoLPvJtaupuTvufuo6Kbg3dsCuRg9KJ73z3WY29Jtx98n-MKyjCR1iianxfcCQ"
