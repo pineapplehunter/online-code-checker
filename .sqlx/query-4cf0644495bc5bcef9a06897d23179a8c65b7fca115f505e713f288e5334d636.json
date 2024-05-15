@@ -1,0 +1,20 @@
+{
+  "db_name": "SQLite",
+  "query": "select status from solutions where userid = ? and problem_id = ?",
+  "describe": {
+    "columns": [
+      {
+        "name": "status",
+        "ordinal": 0,
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": [
+      true
+    ]
+  },
+  "hash": "4cf0644495bc5bcef9a06897d23179a8c65b7fca115f505e713f288e5334d636"
+}

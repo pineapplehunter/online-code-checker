@@ -12,3 +12,13 @@ id = "scanme"
 name = "multiply me"
 dir = "multiplyme"
 id = "multiplyme"
+
+[[problem]]
+name = "if"
+dir = "if"
+id = "if"
+
+[[problem]]
+name = "loop"
+dir = "loop"
+id = "loop"

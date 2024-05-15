@@ -1,0 +1,26 @@
+{
+  "db_name": "SQLite",
+  "query": "select problem_id,content from solutions where id = ?",
+  "describe": {
+    "columns": [
+      {
+        "name": "problem_id",
+        "ordinal": 0,
+        "type_info": "Text"
+      },
+      {
+        "name": "content",
+        "ordinal": 1,
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false,
+      true
+    ]
+  },
+  "hash": "3b4bd70c38a26e98cec97763413bdb9f02b9e687fe68b928b37d1956a08156cf"
+}

@@ -1,0 +1,20 @@
+{
+  "db_name": "SQLite",
+  "query": "insert into solutions (content,status,userid,problem_id) values (?,?,?,?) returning id",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Int64"
+      }
+    ],
+    "parameters": {
+      "Right": 4
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "3e3879585d4169c3f16cec7cc03220a8d5fd85e053e9848a61b5c1fcdec6bdc8"
+}

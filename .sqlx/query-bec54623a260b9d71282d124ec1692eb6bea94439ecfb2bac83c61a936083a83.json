@@ -1,0 +1,20 @@
+{
+  "db_name": "SQLite",
+  "query": "select id from solutions where status = \"Pending\"",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Int64"
+      }
+    ],
+    "parameters": {
+      "Right": 0
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "bec54623a260b9d71282d124ec1692eb6bea94439ecfb2bac83c61a936083a83"
+}
