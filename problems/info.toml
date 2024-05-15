@@ -2,3 +2,13 @@
 name = "hello"
 dir = "hello"
 id = "hello"
+
+[[problem]]
+name = "scan me"
+dir = "scanme"
+id = "scanme"
+
+[[problem]]
+name = "multiply me"
+dir = "multiplyme"
+id = "multiplyme"

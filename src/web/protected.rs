@@ -253,7 +253,7 @@ mod post {
                 .await
                 .unwrap();
                 state.tx.send(Task { id: output.id }).await.unwrap();
-                Redirect::to("/").into_response()
+                Redirect::to("/problems").into_response()
             }
 
             None => StatusCode::INTERNAL_SERVER_ERROR.into_response(),
