@@ -5,16 +5,16 @@ use tokio::{
     process::Command,
     sync::{mpsc::Receiver, Semaphore},
 };
-use tracing::{debug, error, info, info_span, Instrument, Span};
+use tracing::{debug, error, info, info_span, Instrument};
 
-use crate::{Task, CONFIG};
+use crate::config::{get_cached_config, Task};
 
 pub async fn executor_task(mut queue: Receiver<Task>, db: Pool<Sqlite>) -> anyhow::Result<()> {
     debug!("setup executor");
 
     check_docker().await;
 
-    let semaphore = Arc::new(Semaphore::new(CONFIG.executor.concurrent_limit));
+    let semaphore = Arc::new(Semaphore::new(get_cached_config().await?.executor.concurrent_limit));
     while let Some(task) = queue.recv().await {
         let semaphore = semaphore.clone();
         tokio::spawn({
@@ -24,8 +24,6 @@ pub async fn executor_task(mut queue: Receiver<Task>, db: Pool<Sqlite>) -> anyho
                 debug!(task = ?task);
                 let output = Command::new("timeout")
                     .args(["10", "docker", "run", "--init"])
-                    .arg("--memory")
-                    .arg(format!("{}b", CONFIG.executor.memory_limit.as_u64()))
                     .args(["--rm", "ubuntu"])
                     .args(["echo", "hello"])
                     .output()

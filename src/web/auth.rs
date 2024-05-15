@@ -16,6 +16,7 @@ use crate::users::{AuthSession, Credentials};
 pub struct LoginTemplate {
     messages: Vec<Message>,
     next: Option<String>,
+    username: String,
 }
 
 #[derive(Template)]
@@ -23,6 +24,7 @@ pub struct LoginTemplate {
 pub struct RegisterTemplate {
     messages: Vec<Message>,
     next: Option<String>,
+    username: String,
 }
 
 // This allows us to extract the "next" field from the query string. We use this
@@ -105,6 +107,7 @@ mod get {
         LoginTemplate {
             messages: messages.into_iter().collect(),
             next,
+            username: String::from("No User"),
         }
     }
 
@@ -122,6 +125,7 @@ mod get {
         RegisterTemplate {
             messages: messages.into_iter().collect(),
             next,
+            username: String::from("No User"),
         }
     }
 }

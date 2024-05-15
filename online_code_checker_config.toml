@@ -1,6 +1,9 @@
 [database]
 url = "database.sqlite"
 
+[problems]
+dir = "problems"
+
 [executor]
 concurrent_limit = 4
 memory_limit = "100M"

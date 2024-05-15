@@ -1,0 +1,19 @@
+{% extends "base.html" %} {% block title %}問題{% endblock %} {% block content
+%}
+
+<p>問題一覧</p>
+{% for p in problems_info.problem %}
+<div class="card p-2">
+  <div class="card-body">
+    <h2 class="card-title">
+      {% if let Some(name) = p.name %} {{ name }} {% else %} {{p.id}} {% endif
+      %}
+      <span hx-get="./problem/{{p.id}}/badge" hx-trigger="load">
+        <span class="htmx-indicator">バッジをロード中</span>
+      </span>
+    </h2>
+    <a href="./problem/{{p.id}}/solve" class="card-link">問題を解く</a>
+    <a href="./problem/{{p.id}}/status" class="card-link">採点</a>
+  </div>
+</div>
+{% endfor %} {% endblock %}

@@ -12,9 +12,9 @@ use tower_sessions::cookie::Key;
 use tower_sessions_sqlx_store::SqliteStore;
 
 use crate::{
+    config::{get_cached_config, Task},
     users::Backend,
     web::{auth, protected},
-    Task, CONFIG,
 };
 
 pub struct App {
@@ -42,7 +42,7 @@ impl App {
         );
 
         // Generate a cryptographic key to sign the session cookie.
-        let key = Key::from(CONFIG.server.secret_key.as_bytes());
+        let key = Key::from(get_cached_config().await?.server.secret_key.as_bytes());
 
         let session_layer = SessionManagerLayer::new(session_store)
             .with_secure(false)
@@ -53,16 +53,16 @@ impl App {
         //
         // This combines the session layer with our backend to establish the auth
         // service which will provide the auth session as a request extension.
-        let backend = Backend::new(self.db);
+        let backend = Backend::new(self.db.clone());
         let auth_layer = AuthManagerLayerBuilder::new(backend, session_layer).build();
 
-        let app = protected::router()
+        let app = protected::router(self.db, self.tx)
             .route_layer(login_required!(Backend, login_url = "/login"))
             .merge(auth::router())
             .layer(MessagesManagerLayer)
             .layer(auth_layer);
 
-        let listener = tokio::net::TcpListener::bind(&*CONFIG.server.address)
+        let listener = tokio::net::TcpListener::bind(&get_cached_config().await?.server.address)
             .await
             .unwrap();
 

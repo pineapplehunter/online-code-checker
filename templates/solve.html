@@ -1,0 +1,9 @@
+{% extends "base.html" %} {% block title %}{% endblock %} {% block content %} {{
+index_html|safe }}
+
+<form method="post">
+  <textarea name="answer" id=""></textarea>
+  <input type="submit" value="送信" />
+</form>
+
+{% endblock %}
