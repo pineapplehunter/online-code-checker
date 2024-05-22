@@ -40,7 +40,7 @@ struct BadgeTemplate {
     text: String,
     color: String,
     should_refresh: bool,
-    problem_id: i64,
+    problem_id: String,
 }
 
 #[derive(Clone, Debug)]
@@ -123,15 +123,14 @@ mod get {
     pub async fn badge(
         auth_session: AuthSession,
         State(state): State<ServerState>,
-        Path(id): Path<String>,
+        Path(problem_id): Path<String>,
     ) -> impl IntoResponse {
         match auth_session.user {
             Some(user) => {
-                let problem_id = id.parse().unwrap();
                 let texts = sqlx::query!(
                     "select status from solutions where userid = ? and problem_id = ?",
                     user.id,
-                    id
+                    problem_id
                 )
                 .fetch_all(&state.db)
                 .await

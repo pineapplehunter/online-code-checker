@@ -8,8 +8,10 @@ use axum_messages::MessagesManagerLayer;
 use sqlx::SqlitePool;
 use time::Duration;
 use tokio::{signal, sync::mpsc::Sender, task::AbortHandle};
+use tower_http::trace::{self, TraceLayer};
 use tower_sessions::cookie::Key;
 use tower_sessions_sqlx_store::SqliteStore;
+use tracing::Level;
 
 use crate::{
     config::{get_cached_config, Task},
@@ -60,7 +62,12 @@ impl App {
             .route_layer(login_required!(Backend, login_url = "/login"))
             .merge(auth::router())
             .layer(MessagesManagerLayer)
-            .layer(auth_layer);
+            .layer(auth_layer)
+            .layer(
+                TraceLayer::new_for_http()
+                    .make_span_with(trace::DefaultMakeSpan::new().level(Level::INFO))
+                    .on_response(trace::DefaultOnResponse::new().level(Level::INFO)),
+            );
 
         let listener = tokio::net::TcpListener::bind(&get_cached_config().await?.server.address)
             .await

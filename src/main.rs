@@ -30,7 +30,9 @@ async fn main() -> anyhow::Result<()> {
     tracing_subscriber::fmt::init();
 
     let problems = problems::ProblemsInfo::get_cached_problems_info().await?;
-    debug!(?problems);
+    for p in problems.problem.iter() {
+        debug!(?p, "loaded program")
+    }
 
     let pool = database_init().await?;
 
