@@ -1,4 +1,6 @@
-{pkgs?import <nixpkgs> {}}: with pkgs; stdenv.mkDerivation {
+{pkgs ? import <nixpkgs> {}}: with pkgs;
+
+stdenv.mkDerivation {
   name="check";
   src = ./.;
   buildPhase = ''

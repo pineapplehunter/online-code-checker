@@ -3,7 +3,7 @@
 
 <p>問題一覧</p>
 {% for p in problems_info.problem %}
-<div class="card p-2">
+<div class="card p-2 m-2">
   <div class="card-body">
     <h2 class="card-title">
       {% if let Some(name) = p.name %} {{ name }} {% else %} {{p.id}} {% endif
