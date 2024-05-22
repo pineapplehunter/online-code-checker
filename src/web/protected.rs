@@ -53,12 +53,12 @@ struct SolutionBadgeTemplate {
     solution_id: String,
 }
 
-#[derive(Clone, Deserialize)]
-struct Solution {
-    id: i64,
+#[derive(Template)]
+#[template(path = "solution_output.html")]
+struct SolutionOutputTemplate {
     stdout: Option<String>,
     stderr: Option<String>,
-    should_refresh: bool,
+    solution_id: i64,
 }
 
 #[derive(Template)]
@@ -66,7 +66,7 @@ struct Solution {
 struct StatusTemplate {
     messages: Vec<Message>,
     username: String,
-    solutions: Vec<Solution>,
+    solutions: Vec<i64>,
     problem_id: String,
 }
 
@@ -85,7 +85,7 @@ pub fn router(db: SqlitePool, tx: Sender<Task>) -> Router<()> {
         .route("/problem/:id/status", get(self::get::status))
         .route("/problem/:id/badge", get(self::get::badge))
         .route("/solution/:id/badge", get(self::get::solution_badge))
-        // .route("/solution/:id/output", get(self::get::solution_output))
+        .route("/solution/:id/output", get(self::get::solution_output))
         .with_state(ServerState { db, tx })
         .fallback(|| async { Redirect::to("/") })
 }
@@ -271,17 +271,31 @@ mod get {
         }
     }
 
-    // pub async fn solution_output(
-    //     auth_session: AuthSession,
-    //     State(state): State<ServerState>,
-    //     Path(solution_id): Path<String>,
-    // ) -> impl IntoResponse {
-    //     match auth_session.user {
-    //         Some(user) =>
+    pub async fn solution_output(
+        auth_session: AuthSession,
+        State(state): State<ServerState>,
+        Path(solution_id): Path<String>,
+    ) -> impl IntoResponse {
+        match auth_session.user {
+            Some(user) => {
+                let record = sqlx::query!(
+                    "select id,stdout,stderr from solutions where id = ?",
+                    solution_id
+                )
+                .fetch_one(&state.db)
+                .await
+                .unwrap();
+                SolutionOutputTemplate {
+                    stdout: record.stdout,
+                    stderr: record.stderr,
+                    solution_id: record.id,
+                }
+                .into_response()
+            }
 
-    //         None => StatusCode::INTERNAL_SERVER_ERROR.into_response(),
-    //     }
-    // }
+            None => StatusCode::INTERNAL_SERVER_ERROR.into_response(),
+        }
+    }
 
     pub async fn status(
         auth_session: AuthSession,
@@ -292,7 +306,7 @@ mod get {
         match auth_session.user {
             Some(user) => {
                 let record = sqlx::query!(
-                    "select id,stdout,stderr from solutions where userid = ? and problem_id = ?",
+                    "select id from solutions where userid = ? and problem_id = ?",
                     user.id,
                     problem_id
                 )
@@ -302,15 +316,7 @@ mod get {
                 StatusTemplate {
                     messages: messages.into_iter().collect(),
                     username: user.username,
-                    solutions: record
-                        .iter()
-                        .map(|r| Solution {
-                            id: r.id,
-                            stdout: r.stdout.clone(),
-                            stderr: r.stderr.clone(),
-                            should_refresh: r.stdout.is_none(),
-                        })
-                        .collect(),
+                    solutions: record.iter().map(|r| r.id).collect(),
                     problem_id,
                 }
             }

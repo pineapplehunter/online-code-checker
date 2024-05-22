@@ -90,20 +90,32 @@ pub async fn executor_task(mut queue: Receiver<Task>, db: Pool<Sqlite>) -> anyho
                             stderr = %stderr,
                             "Success!"
                         );
-                        sqlx::query!("update solutions set status = ?, stdout = ?, stderr = ? where id = ?", "AC", stdout, stderr, task.id)
-                            .execute(&db)
-                            .await
-                            .unwrap();
+                        sqlx::query!(
+                            "update solutions set status = ?, stdout = ?, stderr = ? where id = ?",
+                            "AC",
+                            stdout,
+                            stderr,
+                            task.id
+                        )
+                        .execute(&db)
+                        .await
+                        .unwrap();
                     } else {
                         info!(
                             stdout = %stdout,
                             stderr = %stderr,
                             "Fail"
                         );
-                        sqlx::query!("update solutions set status = ?, stdout = ?, stderr = ? where id = ?", "WA", stdout, stderr, task.id)
-                            .execute(&db)
-                            .await
-                            .unwrap();
+                        sqlx::query!(
+                            "update solutions set status = ?, stdout = ?, stderr = ? where id = ?",
+                            "WA",
+                            stdout,
+                            stderr,
+                            task.id
+                        )
+                        .execute(&db)
+                        .await
+                        .unwrap();
                     }
                 }
                 .instrument(span)

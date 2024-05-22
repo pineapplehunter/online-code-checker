@@ -1,0 +1,30 @@
+{% if let Some(out) = stdout %} {% if let Some(err) = stderr %}
+<p>stdout</p>
+<div class="card p-2 m-2">
+  <div class="card-body">
+    <pre>{{out}}</pre>
+  </div>
+</div>
+<p>stderr</p>
+<div class="card p-2 m-2">
+  <div class="card-body">
+    <pre>{{err}}</pre>
+  </div>
+</div>
+{%else%}
+<span
+  hx-get="/solution/{{solution_id}}/output"
+  hx-trigger="load delay:20s"
+  hx-swap="outerHTML"
+>
+  確認中
+</span>
+{%endif%} {%else%}
+<span
+  hx-get="/solution/{{solution_id}}/output"
+  hx-trigger="load delay:20s"
+  hx-swap="outerHTML"
+>
+  確認中
+</span>
+{%endif%}

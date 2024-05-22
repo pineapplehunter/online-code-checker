@@ -8,24 +8,20 @@
   <div class="card-body">
     <h2 class="card-title">
       結果<span
-        hx-get="/solution/{{s.id}}/badge"
+        hx-get="/solution/{{s}}/badge"
         hx-trigger="load"
         hx-swap="outerHTML"
       >
         <span class="htmx-indicator">バッジをロード中</span>
       </span>
     </h2>
-    <div class="card p-2 m-2">
-      <div class="card-body">
-        <h2 class="card-title"></h2>
-        {% if let Some(out) = s.stdout %} {% if let Some(err) = s.stderr %}
-        <p>stdout</p>
-        <p>{{out}}</p>
-        <p>stderr</p>
-        <p>{{err}}</p>
-        {%else%} 確認中 {%endif%} {%else%} 確認中 {%endif%}
-      </div>
-    </div>
+    <span
+      hx-get="/solution/{{s}}/output"
+      hx-trigger="load"
+      hx-swap="outerHTML"
+    >
+      <span class="htmx-indicator">出力をロード中</span>
+    </span>
   </div>
 </div>
 {% endfor %} {% endblock %}
