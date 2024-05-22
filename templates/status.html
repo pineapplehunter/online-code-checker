@@ -1,0 +1,31 @@
+{% extends "base.html" %} {% block title %}結果{% endblock %} {% block content
+%}
+
+<p>ステータス</p>
+<p>{{problem_id}}</p>
+{% for s in solutions %}
+<div class="card p-2 m-2">
+  <div class="card-body">
+    <h2 class="card-title">
+      結果<span
+        hx-get="/solution/{{s.id}}/badge"
+        hx-trigger="load"
+        hx-swap="outerHTML"
+      >
+        <span class="htmx-indicator">バッジをロード中</span>
+      </span>
+    </h2>
+    <div class="card p-2 m-2">
+      <div class="card-body">
+        <h2 class="card-title"></h2>
+        {% if let Some(out) = s.stdout %} {% if let Some(err) = s.stderr %}
+        <p>stdout</p>
+        <p>{{out}}</p>
+        <p>stderr</p>
+        <p>{{err}}</p>
+        {%else%} 確認中 {%endif%} {%else%} 確認中 {%endif%}
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %} {% endblock %}
