@@ -1,7 +1,7 @@
 {% if should_refresh %}
 <span
   class="badge {{color}}"
-  hx-get="./solution/{{solution_id}}/badge"
+  hx-get="/solution/{{solution_id}}/badge"
   hx-trigger="load delay:5s"
   hx-swap="outerHTML"
   >{{text}}</span
