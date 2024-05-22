@@ -22,3 +22,13 @@ id = "if"
 name = "loop"
 dir = "loop"
 id = "loop"
+
+[[problem]]
+name = "swap"
+dir = "swap"
+id = "swap"
+
+[[problem]]
+name = "string"
+dir = "string"
+id = "string"
