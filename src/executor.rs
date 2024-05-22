@@ -20,7 +20,7 @@ pub async fn executor_task(mut queue: Receiver<Task>, db: Pool<Sqlite>) -> anyho
     let semaphore = Arc::new(Semaphore::new(
         get_cached_config().await?.executor.concurrent_limit,
     ));
-    while let Some(_) = queue.recv().await {
+    while queue.recv().await.is_some() {
         let tasks = sqlx::query!("select id from solutions where status = \"Pending\"")
             .fetch_all(&db)
             .await?;

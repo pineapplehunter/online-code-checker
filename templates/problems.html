@@ -8,7 +8,7 @@
     <h2 class="card-title">
       {% if let Some(name) = p.name %} {{ name }} {% else %} {{p.id}} {% endif
       %}
-      <span hx-get="./problem/{{p.id}}/badge" hx-trigger="load">
+      <span hx-get="./problem/{{p.id}}/badge" hx-trigger="load" hx-swap="outerHTML">
         <span class="htmx-indicator">バッジをロード中</span>
       </span>
     </h2>

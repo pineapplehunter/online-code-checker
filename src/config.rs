@@ -4,7 +4,7 @@ use anyhow::{Context, Result};
 use bytesize::ByteSize;
 use serde::Deserialize;
 use tokio::{fs::read_to_string, sync::OnceCell};
-use tracing::{debug, debug_span};
+use tracing::debug;
 
 #[derive(Debug, Deserialize)]
 pub struct DatabaseConfiguration {

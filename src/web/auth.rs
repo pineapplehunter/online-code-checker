@@ -44,7 +44,7 @@ pub fn router() -> Router<()> {
 }
 
 mod post {
-    use crate::users::{RegisterUserData, User};
+    use crate::users::RegisterUserData;
 
     use super::*;
 
@@ -90,7 +90,7 @@ mod post {
         match auth_session.backend.register_user(user_data).await {
             Ok(_) => Redirect::to("login"),
             Err(e) => {
-                messages.error(&e.to_string());
+                messages.error(e.to_string());
                 Redirect::to("register")
             }
         }

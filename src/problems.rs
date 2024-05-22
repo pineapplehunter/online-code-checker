@@ -1,17 +1,11 @@
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 use anyhow::{Context, Result};
-use axum_extra::extract::OptionalPath;
 use serde::Deserialize;
-use tokio::{
-    fs::{read_to_string, File},
-    sync::OnceCell,
-};
+use tokio::{fs::read_to_string, sync::OnceCell};
 use tracing::debug;
 
 use crate::config::get_cached_config;
-
-pub fn check(base_dir: &Path) {}
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct Problem {

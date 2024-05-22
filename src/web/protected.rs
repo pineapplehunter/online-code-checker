@@ -1,5 +1,4 @@
 use crate::{config::Task, problems::ProblemsInfo, users::AuthSession};
-use anyhow::format_err;
 use askama::Template;
 use axum::{
     extract::Path,
@@ -8,7 +7,6 @@ use axum::{
     routing::{get, post},
     Router,
 };
-use axum_extra::headers::Server;
 use axum_messages::{Message, Messages};
 use sqlx::SqlitePool;
 use tokio::sync::mpsc::Sender;
@@ -38,11 +36,11 @@ struct SolveTemplate<'a> {
 
 #[derive(Template)]
 #[template(path = "badge.html")]
-struct BadgeTemplate<'a> {
-    messages: Vec<Message>,
+struct BadgeTemplate {
     text: String,
     color: String,
-    username: &'a str,
+    should_refresh: bool,
+    problem_id: i64,
 }
 
 #[derive(Clone, Debug)]
@@ -124,12 +122,12 @@ mod get {
 
     pub async fn badge(
         auth_session: AuthSession,
-        messages: Messages,
         State(state): State<ServerState>,
         Path(id): Path<String>,
     ) -> impl IntoResponse {
         match auth_session.user {
             Some(user) => {
+                let problem_id = id.parse().unwrap();
                 let texts = sqlx::query!(
                     "select status from solutions where userid = ? and problem_id = ?",
                     user.id,
@@ -140,52 +138,50 @@ mod get {
                 .unwrap();
                 if texts.is_empty() {
                     BadgeTemplate {
-                        messages: messages.into_iter().collect(),
-                        username: &user.username,
                         text: "未完了".to_string(),
                         color: "text-bg-light".to_string(),
+                        should_refresh: false,
+                        problem_id,
+                    }
+                } else if texts
+                    .iter()
+                    .flat_map(|s| s.status.clone())
+                    .any(|s| s.to_lowercase() == "ac")
+                {
+                    BadgeTemplate {
+                        text: "完了".to_string(),
+                        color: "text-bg-success".to_string(),
+                        should_refresh: false,
+                        problem_id,
+                    }
+                } else if texts
+                    .iter()
+                    .flat_map(|s| s.status.clone())
+                    .any(|s| s.to_lowercase() == "pending")
+                {
+                    BadgeTemplate {
+                        text: "チェック".to_string(),
+                        color: "text-bg-warning".to_string(),
+                        should_refresh: true,
+                        problem_id,
+                    }
+                } else if texts
+                    .iter()
+                    .flat_map(|s| s.status.clone())
+                    .any(|s| s.to_lowercase() == "wa")
+                {
+                    BadgeTemplate {
+                        text: "失敗".to_string(),
+                        color: "text-bg-danger".to_string(),
+                        should_refresh: false,
+                        problem_id,
                     }
                 } else {
-                    if texts
-                        .iter()
-                        .flat_map(|s| s.status.clone())
-                        .any(|s| s.to_lowercase() == "ac")
-                    {
-                        BadgeTemplate {
-                            messages: messages.into_iter().collect(),
-                            username: &user.username,
-                            text: "完了".to_string(),
-                            color: "text-bg-success".to_string(),
-                        }
-                    } else if texts
-                        .iter()
-                        .flat_map(|s| s.status.clone())
-                        .any(|s| s.to_lowercase() == "pending")
-                    {
-                        BadgeTemplate {
-                            messages: messages.into_iter().collect(),
-                            username: &user.username,
-                            text: "チェック".to_string(),
-                            color: "text-bg-warning".to_string(),
-                        }
-                    } else if texts
-                        .iter()
-                        .flat_map(|s| s.status.clone())
-                        .any(|s| s.to_lowercase() == "wa")
-                    {
-                        BadgeTemplate {
-                            messages: messages.into_iter().collect(),
-                            username: &user.username,
-                            text: "失敗".to_string(),
-                            color: "text-bg-danger".to_string(),
-                        }
-                    } else {
-                        BadgeTemplate {
-                            messages: messages.into_iter().collect(),
-                            username: &user.username,
-                            text: "不明".to_string(),
-                            color: "badge text-bg-secondary".to_string(),
-                        }
+                    BadgeTemplate {
+                        text: "不明".to_string(),
+                        color: "badge text-bg-secondary".to_string(),
+                        should_refresh: false,
+                        problem_id,
                     }
                 }
                 .into_response()
@@ -220,13 +216,11 @@ mod post {
         response::Redirect,
         Form,
     };
-    use axum_messages::Messages;
     use serde::Deserialize;
-    use sqlx::SqlitePool;
 
-    use crate::{config::Task, problems::ProblemsInfo, users::AuthSession};
+    use crate::{config::Task, users::AuthSession};
 
-    use super::{ProblemsTemplate, ServerState};
+    use super::ServerState;
 
     #[derive(Debug, Clone, Deserialize)]
     pub struct SolvePost {
@@ -235,7 +229,6 @@ mod post {
 
     pub async fn solve(
         auth_session: AuthSession,
-        messages: Messages,
         Path(id): Path<String>,
         State(state): State<ServerState>,
         Form(form): Form<SolvePost>,

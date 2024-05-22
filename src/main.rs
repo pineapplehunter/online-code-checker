@@ -1,13 +1,8 @@
-use std::{cell::OnceCell, env, fs::read_to_string, path::PathBuf, sync::OnceLock};
-
 use anyhow::{Context, Result};
-use bytesize::ByteSize;
 use config::get_cached_config;
-use once_cell::sync::Lazy;
-use serde::Deserialize;
 use sqlx::{sqlite::SqliteConnectOptions, Pool, Sqlite, SqlitePool};
 use tokio::sync::mpsc::channel;
-use tracing::{debug, info, instrument, trace, warn};
+use tracing::{debug, instrument};
 
 mod config;
 mod executor;
@@ -35,6 +30,7 @@ async fn main() -> anyhow::Result<()> {
     tracing_subscriber::fmt::init();
 
     let problems = problems::ProblemsInfo::get_cached_problems_info().await?;
+    debug!(?problems);
 
     let pool = database_init().await?;
 
