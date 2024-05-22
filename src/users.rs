@@ -6,6 +6,7 @@ use password_auth::verify_password;
 use serde::{Deserialize, Serialize};
 use sqlx::{FromRow, SqlitePool};
 use thiserror::Error;
+use time::OffsetDateTime;
 use tokio::task;
 
 #[derive(Clone, Serialize, Deserialize, FromRow)]
@@ -14,6 +15,7 @@ pub struct User {
     pub username: String,
     password: String,
     super_user: Option<bool>,
+    created_at: Option<OffsetDateTime>,
 }
 
 // Here we've implemented `Debug` manually to avoid accidentally logging the
@@ -148,9 +150,9 @@ impl Backend {
         .await
         .unwrap();
         let _query_result = sqlx::query!(
-            "insert into user (username,password) values(?,?)",
+            "insert into user (username,password,created_at) values(?,?,current_timestamp)",
             data.username,
-            password
+            password,
         )
         .execute(&self.db)
         .await;

@@ -91,7 +91,7 @@ pub async fn executor_task(mut queue: Receiver<Task>, db: Pool<Sqlite>) -> anyho
                             "Success!"
                         );
                         sqlx::query!(
-                            "update solutions set status = ?, stdout = ?, stderr = ? where id = ?",
+                            "update solutions set status = ?, stdout = ?, stderr = ?, executed_at = current_timestamp where id = ?",
                             "AC",
                             stdout,
                             stderr,
@@ -107,7 +107,7 @@ pub async fn executor_task(mut queue: Receiver<Task>, db: Pool<Sqlite>) -> anyho
                             "Fail"
                         );
                         sqlx::query!(
-                            "update solutions set status = ?, stdout = ?, stderr = ? where id = ?",
+                            "update solutions set status = ?, stdout = ?, stderr = ?, executed_at = current_timestamp where id = ?",
                             "WA",
                             stdout,
                             stderr,

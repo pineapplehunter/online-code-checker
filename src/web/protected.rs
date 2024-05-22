@@ -8,7 +8,6 @@ use axum::{
     Router,
 };
 use axum_messages::{Message, Messages};
-use serde::Deserialize;
 use sqlx::SqlitePool;
 use tokio::sync::mpsc::Sender;
 
@@ -36,7 +35,7 @@ struct SolveTemplate<'a> {
 }
 
 #[derive(Template)]
-#[template(path = "badge.html")]
+#[template(path = "embed/badge.html")]
 struct BadgeTemplate {
     text: String,
     color: String,
@@ -45,7 +44,7 @@ struct BadgeTemplate {
 }
 
 #[derive(Template)]
-#[template(path = "solution_badge.html")]
+#[template(path = "embed/solution_badge.html")]
 struct SolutionBadgeTemplate {
     text: String,
     color: String,
@@ -54,7 +53,7 @@ struct SolutionBadgeTemplate {
 }
 
 #[derive(Template)]
-#[template(path = "solution_output.html")]
+#[template(path = "embed/solution_output.html")]
 struct SolutionOutputTemplate {
     stdout: Option<String>,
     stderr: Option<String>,
@@ -277,7 +276,7 @@ mod get {
         Path(solution_id): Path<String>,
     ) -> impl IntoResponse {
         match auth_session.user {
-            Some(user) => {
+            Some(_) => {
                 let record = sqlx::query!(
                     "select id,stdout,stderr from solutions where id = ?",
                     solution_id
@@ -355,11 +354,11 @@ mod post {
         match auth_session.user {
             Some(user) => {
                 let output = sqlx::query!(
-                    "insert into solutions (content,status,userid,problem_id) values (?,?,?,?) returning id",
+                    "insert into solutions (content,status,userid,problem_id,created_at) values (?,?,?,?,current_timestamp) returning id",
                     form.answer,
                     "Pending",
                     user.id,
-                    id
+                    id,
                 )
                 .fetch_one(&state.db)
                 .await
