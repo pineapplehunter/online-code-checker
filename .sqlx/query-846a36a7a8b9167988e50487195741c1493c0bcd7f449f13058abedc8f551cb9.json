@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "select id,stdout,stderr from solutions where userid = ? and problem_id = ?",
+  "query": "select id,stdout,stderr from solutions where id = ?",
   "describe": {
     "columns": [
       {
@@ -20,7 +20,7 @@
       }
     ],
     "parameters": {
-      "Right": 2
+      "Right": 1
     },
     "nullable": [
       false,
@@ -28,5 +28,5 @@
       true
     ]
   },
-  "hash": "1eb70c0435ec7a99b8c90e7816cab321b9038b2a94b62692b11d42c7e3e83975"
+  "hash": "846a36a7a8b9167988e50487195741c1493c0bcd7f449f13058abedc8f551cb9"
 }
