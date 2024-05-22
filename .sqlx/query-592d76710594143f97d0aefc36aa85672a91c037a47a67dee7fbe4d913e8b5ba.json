@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "update solutions set status = ?, stdout = ?, stderr = ?, executed_at = current_timestamp where id = ?",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 4
+    },
+    "nullable": []
+  },
+  "hash": "592d76710594143f97d0aefc36aa85672a91c037a47a67dee7fbe4d913e8b5ba"
+}

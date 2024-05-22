@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "insert into solutions (content,status,userid,problem_id) values (?,?,?,?) returning id",
+  "query": "insert into solutions (content,status,userid,problem_id,created_at) values (?,?,?,?,current_timestamp) returning id",
   "describe": {
     "columns": [
       {
@@ -16,5 +16,5 @@
       false
     ]
   },
-  "hash": "3e3879585d4169c3f16cec7cc03220a8d5fd85e053e9848a61b5c1fcdec6bdc8"
+  "hash": "4c82fd2cc8081d4efefc165ac0873f6e791b7a28d965a2f13cb24e03ab7abf0c"
 }
