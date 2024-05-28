@@ -1,4 +1,4 @@
-{pkgs?import <nixpkgs> {}}:with pkgs; mkShell {
+{ pkgs ? import <nixpkgs> { } }: with pkgs; mkShell {
   packages = [
     musl
   ];

@@ -35,11 +35,37 @@ struct SolveTemplate<'a> {
 }
 
 #[derive(Template)]
-#[template(path = "badge.html")]
+#[template(path = "embed/badge.html")]
 struct BadgeTemplate {
     text: String,
     color: String,
     should_refresh: bool,
+    problem_id: String,
+}
+
+#[derive(Template)]
+#[template(path = "embed/solution_badge.html")]
+struct SolutionBadgeTemplate {
+    text: String,
+    color: String,
+    should_refresh: bool,
+    solution_id: String,
+}
+
+#[derive(Template)]
+#[template(path = "embed/solution_output.html")]
+struct SolutionOutputTemplate {
+    stdout: Option<String>,
+    stderr: Option<String>,
+    solution_id: i64,
+}
+
+#[derive(Template)]
+#[template(path = "status.html")]
+struct StatusTemplate {
+    messages: Vec<Message>,
+    username: String,
+    solutions: Vec<i64>,
     problem_id: String,
 }
 
@@ -57,6 +83,8 @@ pub fn router(db: SqlitePool, tx: Sender<Task>) -> Router<()> {
         .route("/problem/:id/solve", post(self::post::solve))
         .route("/problem/:id/status", get(self::get::status))
         .route("/problem/:id/badge", get(self::get::badge))
+        .route("/solution/:id/badge", get(self::get::solution_badge))
+        .route("/solution/:id/output", get(self::get::solution_output))
         .with_state(ServerState { db, tx })
         .fallback(|| async { Redirect::to("/") })
 }
@@ -190,15 +218,106 @@ mod get {
         }
     }
 
-    pub async fn status(auth_session: AuthSession, messages: Messages) -> impl IntoResponse {
+    pub async fn solution_badge(
+        auth_session: AuthSession,
+        State(state): State<ServerState>,
+        Path(solution_id): Path<String>,
+    ) -> impl IntoResponse {
         match auth_session.user {
-            Some(user) => ProblemsTemplate {
-                messages: messages.into_iter().collect(),
-                problems_info: ProblemsInfo::get_cached_problems_info()
+            Some(_) => {
+                let texts = sqlx::query!("select status from solutions where id = ?", solution_id)
+                    .fetch_one(&state.db)
                     .await
-                    .unwrap()
-                    .clone(),
-                username: &user.username,
+                    .unwrap();
+                match texts.status {
+                    Some(status) => match status.to_lowercase().as_str() {
+                        "ac" => SolutionBadgeTemplate {
+                            text: "完了".to_string(),
+                            color: "text-bg-success".to_string(),
+                            should_refresh: false,
+                            solution_id,
+                        },
+                        "wa" => SolutionBadgeTemplate {
+                            text: "失敗".to_string(),
+                            color: "text-bg-danger".to_string(),
+                            should_refresh: false,
+                            solution_id,
+                        },
+                        "pending" => SolutionBadgeTemplate {
+                            text: "チェック".to_string(),
+                            color: "text-bg-warning".to_string(),
+                            should_refresh: true,
+                            solution_id,
+                        },
+                        _ => SolutionBadgeTemplate {
+                            text: "不明".to_string(),
+                            color: "badge text-bg-secondary".to_string(),
+                            should_refresh: false,
+                            solution_id,
+                        },
+                    },
+                    None => SolutionBadgeTemplate {
+                        text: "未完了".to_string(),
+                        color: "text-bg-light".to_string(),
+                        should_refresh: false,
+                        solution_id,
+                    },
+                }
+                .into_response()
+            }
+
+            None => StatusCode::INTERNAL_SERVER_ERROR.into_response(),
+        }
+    }
+
+    pub async fn solution_output(
+        auth_session: AuthSession,
+        State(state): State<ServerState>,
+        Path(solution_id): Path<String>,
+    ) -> impl IntoResponse {
+        match auth_session.user {
+            Some(_) => {
+                let record = sqlx::query!(
+                    "select id,stdout,stderr from solutions where id = ?",
+                    solution_id
+                )
+                .fetch_one(&state.db)
+                .await
+                .unwrap();
+                SolutionOutputTemplate {
+                    stdout: record.stdout,
+                    stderr: record.stderr,
+                    solution_id: record.id,
+                }
+                .into_response()
+            }
+
+            None => StatusCode::INTERNAL_SERVER_ERROR.into_response(),
+        }
+    }
+
+    pub async fn status(
+        auth_session: AuthSession,
+        messages: Messages,
+        State(state): State<ServerState>,
+        Path(problem_id): Path<String>,
+    ) -> impl IntoResponse {
+        match auth_session.user {
+            Some(user) => {
+                let record = sqlx::query!(
+                    "select id from solutions where userid = ? and problem_id = ?",
+                    user.id,
+                    problem_id
+                )
+                .fetch_all(&state.db)
+                .await
+                .unwrap();
+                StatusTemplate {
+                    messages: messages.into_iter().collect(),
+                    username: user.username,
+                    solutions: record.iter().map(|r| r.id).collect(),
+                    problem_id,
+                }
             }
             .into_response(),
 
@@ -235,11 +354,11 @@ mod post {
         match auth_session.user {
             Some(user) => {
                 let output = sqlx::query!(
-                    "insert into solutions (content,status,userid,problem_id) values (?,?,?,?) returning id",
+                    "insert into solutions (content,status,userid,problem_id,created_at) values (?,?,?,?,current_timestamp) returning id",
                     form.answer,
                     "Pending",
                     user.id,
-                    id
+                    id,
                 )
                 .fetch_one(&state.db)
                 .await

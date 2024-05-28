@@ -8,12 +8,16 @@
     <h2 class="card-title">
       {% if let Some(name) = p.name %} {{ name }} {% else %} {{p.id}} {% endif
       %}
-      <span hx-get="./problem/{{p.id}}/badge" hx-trigger="load" hx-swap="outerHTML">
+      <span
+        hx-get="./problem/{{p.id}}/badge"
+        hx-trigger="load"
+        hx-swap="outerHTML"
+      >
         <span class="htmx-indicator">バッジをロード中</span>
       </span>
     </h2>
     <a href="./problem/{{p.id}}/solve" class="card-link">問題を解く</a>
-    <!-- <a href="./problem/{{p.id}}/status" class="card-link">採点</a> -->
+    <a href="./problem/{{p.id}}/status" class="card-link">採点</a>
   </div>
 </div>
 {% endfor %} {% endblock %}

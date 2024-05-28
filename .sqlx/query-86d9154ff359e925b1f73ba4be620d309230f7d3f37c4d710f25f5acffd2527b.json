@@ -22,6 +22,11 @@
         "name": "super_user",
         "ordinal": 3,
         "type_info": "Bool"
+      },
+      {
+        "name": "created_at",
+        "ordinal": 4,
+        "type_info": "Datetime"
       }
     ],
     "parameters": {
@@ -31,6 +36,7 @@
       false,
       false,
       false,
+      true,
       true
     ]
   },

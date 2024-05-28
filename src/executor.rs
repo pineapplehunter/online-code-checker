@@ -81,26 +81,41 @@ pub async fn executor_task(mut queue: Receiver<Task>, db: Pool<Sqlite>) -> anyho
                         .await
                         .unwrap();
 
+                    let stdout = String::from_utf8_lossy(&output.stdout);
+                    let stderr = String::from_utf8_lossy(&output.stderr);
+
                     if output.status.success() {
                         info!(
-                            stdout = %String::from_utf8_lossy(&output.stdout),
-                            stderr = %String::from_utf8_lossy(&output.stderr),
+                            stdout = %stdout,
+                            stderr = %stderr,
                             "Success!"
                         );
-                        sqlx::query!("update solutions set status = \"AC\" where id = ?", task.id)
-                            .execute(&db)
-                            .await
-                            .unwrap();
+                        sqlx::query!(
+                            "update solutions set status = ?, stdout = ?, stderr = ?, executed_at = current_timestamp where id = ?",
+                            "AC",
+                            stdout,
+                            stderr,
+                            task.id
+                        )
+                        .execute(&db)
+                        .await
+                        .unwrap();
                     } else {
                         info!(
-                            stdout = %String::from_utf8_lossy(&output.stdout),
-                            stderr = %String::from_utf8_lossy(&output.stderr),
+                            stdout = %stdout,
+                            stderr = %stderr,
                             "Fail"
                         );
-                        sqlx::query!("update solutions set status = \"WA\" where id = ?", task.id)
-                            .execute(&db)
-                            .await
-                            .unwrap();
+                        sqlx::query!(
+                            "update solutions set status = ?, stdout = ?, stderr = ?, executed_at = current_timestamp where id = ?",
+                            "WA",
+                            stdout,
+                            stderr,
+                            task.id
+                        )
+                        .execute(&db)
+                        .await
+                        .unwrap();
                     }
                 }
                 .instrument(span)
