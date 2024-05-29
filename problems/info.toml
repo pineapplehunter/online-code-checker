@@ -37,3 +37,13 @@ id = "string"
 name = "malloc int"
 dir = "mallocint"
 id = "mallocint"
+
+[[problem]]
+name = "配列"
+dir = "array"
+id = "array"
+
+[[problem]]
+name = "ファイル"
+dir = "file"
+id = "file"
