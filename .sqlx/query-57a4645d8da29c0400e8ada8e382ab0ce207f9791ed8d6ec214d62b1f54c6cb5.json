@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "insert into solutions (content,status,userid,problem_id,created_at) values (?,?,?,?,current_timestamp)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 4
+    },
+    "nullable": []
+  },
+  "hash": "57a4645d8da29c0400e8ada8e382ab0ce207f9791ed8d6ec214d62b1f54c6cb5"
+}
