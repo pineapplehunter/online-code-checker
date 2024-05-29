@@ -11,6 +11,7 @@ pub struct DatabaseConfiguration {
     pub url: String,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Deserialize)]
 pub struct ExecutorConfiguration {
     pub concurrent_limit: usize,
@@ -36,9 +37,7 @@ pub struct Configuration {
     pub problems: ProblemsConfiguration,
 }
 #[derive(Debug)]
-pub struct Task {
-    pub id: i64,
-}
+pub struct Task;
 
 static CONFIG: OnceCell<Configuration> = OnceCell::const_new();
 

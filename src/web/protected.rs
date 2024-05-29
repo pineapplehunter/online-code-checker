@@ -353,17 +353,14 @@ mod post {
     ) -> impl IntoResponse {
         match auth_session.user {
             Some(user) => {
-                let output = sqlx::query!(
-                    "insert into solutions (content,status,userid,problem_id,created_at) values (?,?,?,?,current_timestamp) returning id",
+                sqlx::query!(
+                    "insert into solutions (content,status,userid,problem_id,created_at) values (?,?,?,?,current_timestamp)",
                     form.answer,
                     "Pending",
                     user.id,
                     id,
-                )
-                .fetch_one(&state.db)
-                .await
-                .unwrap();
-                state.tx.send(Task { id: output.id }).await.unwrap();
+                ).execute(&state.db).await.unwrap();
+                state.tx.send(Task).await.unwrap();
                 Redirect::to("/problems").into_response()
             }
 

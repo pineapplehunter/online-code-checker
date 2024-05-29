@@ -9,7 +9,6 @@ use crate::config::get_cached_config;
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct Problem {
-    pub group: Option<String>,
     pub name: Option<String>,
     pub id: String,
     pub dir: PathBuf,
