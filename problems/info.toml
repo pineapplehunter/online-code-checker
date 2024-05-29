@@ -32,3 +32,8 @@ id = "swap"
 name = "string"
 dir = "string"
 id = "string"
+
+[[problem]]
+name = "malloc int"
+dir = "mallocint"
+id = "mallocint"
