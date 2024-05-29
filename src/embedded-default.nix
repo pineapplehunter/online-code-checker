@@ -6,7 +6,7 @@ let
       src = ./.;
       buildPhase = ''
         set -x
-        if [ -f pattern.txt ]; do
+        if [ -f pattern.txt ]; then
           cat pattern.txt | while read line
           do
             grep $line main.c
