@@ -9,7 +9,9 @@ use axum::{
 };
 use axum_messages::{Message, Messages};
 use sqlx::SqlitePool;
+use time::OffsetDateTime;
 use tokio::sync::mpsc::Sender;
+use tower_http::services::ServeDir;
 
 #[derive(Template)]
 #[template(path = "index.html")]
@@ -58,6 +60,8 @@ struct SolutionOutputTemplate {
     stdout: Option<String>,
     stderr: Option<String>,
     solution_id: i64,
+    created_at: Option<OffsetDateTime>,
+    executed_at: Option<OffsetDateTime>,
 }
 
 #[derive(Template)]
@@ -85,6 +89,7 @@ pub fn router(db: SqlitePool, tx: Sender<Task>) -> Router<()> {
         .route("/problem/:id/badge", get(self::get::badge))
         .route("/solution/:id/badge", get(self::get::solution_badge))
         .route("/solution/:id/output", get(self::get::solution_output))
+        .nest_service("/public", ServeDir::new("public"))
         .with_state(ServerState { db, tx })
         .fallback(|| async { Redirect::to("/") })
 }
@@ -278,7 +283,7 @@ mod get {
         match auth_session.user {
             Some(_) => {
                 let record = sqlx::query!(
-                    "select id,stdout,stderr from solutions where id = ?",
+                    "select id,stdout,stderr,created_at,executed_at from solutions where id = ?",
                     solution_id
                 )
                 .fetch_one(&state.db)
@@ -288,6 +293,8 @@ mod get {
                     stdout: record.stdout,
                     stderr: record.stderr,
                     solution_id: record.id,
+                    created_at: record.created_at,
+                    executed_at: record.executed_at,
                 }
                 .into_response()
             }

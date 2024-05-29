@@ -25,7 +25,7 @@ thiserror = "1.0.60"
 time = "0.3.36"
 tokio = { version = "1.37.0", features = ["full"] }
 toml = "0.8.12"
-tower-http = { version = "0.5.2", features = ["trace"] }
+tower-http = { version = "0.5.2", features = ["fs","trace"] }
 tower-sessions = { version = "0.12.0", default-features = false, features = [
     "signed",
 ] }

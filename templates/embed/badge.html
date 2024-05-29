@@ -4,8 +4,10 @@
   hx-get="/problem/{{problem_id}}/badge"
   hx-trigger="load delay:5s"
   hx-swap="outerHTML"
-  >{{text}}</span
 >
+  {{text}}
+  <img src="/public/ring.svg" />
+</span>
 {% else %}
 <span class="badge {{color}}">{{text}}</span>
 {% endif %}
