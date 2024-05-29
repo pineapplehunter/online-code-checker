@@ -11,7 +11,7 @@ let
           do
             grep $line main.c
           done
-        done
+        fi
 
         cc -o main main.c
         for i in $(cat pairs.txt); do
