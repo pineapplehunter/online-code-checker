@@ -22,7 +22,7 @@ serde = { version = "1.0.198", features = ["derive"] }
 sqlx = { version = "0.7", features = [ "runtime-tokio", "sqlite", "time" ] }
 tempdir = "0.3.7"
 thiserror = "1.0.60"
-time = "0.3.36"
+time = "0.3.47"
 tokio = { version = "1.37.0", features = ["full"] }
 toml = "0.8.12"
 tower-http = { version = "0.5.2", features = ["fs","trace"] }
